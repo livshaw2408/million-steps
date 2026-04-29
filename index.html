@@ -1,2 +1,56 @@
-<h1>🏃🏻‍♀️ One Million Steps in May for Mind</h1>
-<p>Steps will go here soon!</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>My Stepathon</title>
+  <meta http-equiv="refresh" content="60">
+</head>
+<body style="font-family: Arial; text-align: center; padding: 40px;">
+
+<h1>🚶 My Charity Stepathon</h1>
+
+<h2 id="latest">Loading...</h2>
+<h3 id="monthly">Loading...</h3>
+
+<script>
+fetch("YOUR_CSV_LINK")
+  .then(res => res.text())
+  .then(csv => {
+    const rows = csv.trim().split("\n").slice(1);
+
+    let latestSteps = 0;
+    let dailyMax = {};
+
+    rows.forEach(row => {
+      const [date, time, steps] = row.split(",");
+      const stepNum = parseInt(steps);
+
+      latestSteps = stepNum;
+
+      // Track max per day
+      if (!dailyMax[date] || stepNum > dailyMax[date]) {
+        dailyMax[date] = stepNum;
+      }
+    });
+
+    // Calculate monthly total
+    const now = new Date();
+    const currentMonth = now.toISOString().slice(0,7);
+
+    let monthlyTotal = 0;
+
+    for (let date in dailyMax) {
+      if (date.startsWith(currentMonth)) {
+        monthlyTotal += dailyMax[date];
+      }
+    }
+
+    document.getElementById("latest").innerText =
+      "Latest: " + latestSteps + " steps";
+
+    document.getElementById("monthly").innerText =
+      "This month: " + monthlyTotal + " steps";
+  });
+</script>
+
+</body>
+</html>
