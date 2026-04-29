@@ -1,100 +1,7 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>My Stepathon</title>
-  <meta http-equiv="refresh" content="60">
-
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      text-align: center;
-      padding: 40px;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: auto;
-      background: white;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    .stat {
-      font-size: 28px;
-      margin: 15px 0;
-    }
-
-    .progress-bar {
-      width: 100%;
-      background: #eee;
-      border-radius: 20px;
-      overflow: hidden;
-      height: 25px;
-      margin: 20px 0;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, #4facfe, #00f2fe);
-      transition: width 0.5s ease;
-    }
-
-    .goal {
-      color: #666;
-      font-size: 14px;
-    }
-
-    .donate {
-      display: inline-block;
-      margin-top: 20px;
-      padding: 12px 20px;
-      background: #28a745;
-      color: white;
-      text-decoration: none;
-      border-radius: 8px;
-      font-weight: bold;
-    }
-
-  </style>
-</head>
-
-<body>
-
-<div class="container">
-
-<h1>🚶 My Charity Stepathon</h1>
-<p>
-  Walking 1,000,000 steps to raise money for Mind — a charity close to my heart.
-  With NHS mental health treatment waiting lists getting longer, the work Mind does is more important than ever.
-</p>
-
-<div class="stat" id="latest">Loading...</div>
-<div class="stat" id="today"></div>
-<div class="stat" id="monthly"></div>
-
-<div class="stat" id="distance"></div>
-<div class="goal" id="comparison"></div>
-<div class="progress-bar">
-  <div class="progress-fill" id="progress"></div>
-</div>
-
-<div class="goal" id="goalText"></div>
-
-<a class="donate" href="https://www.justgiving.com/page/liv-shaw-may-million" target="_blank">Donate</a>
-
-</div>
-
 <script>
-const GOAL = 1000000; // 
+const GOAL = 1000000;
 
-fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMUOSM-27Fwd0Lc9rRjN7uGqDlgBK9qH083gdPU2cEYoLxJ5j1dUMZBBg/pub?output=csv" + new Date().getTime())
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMUOSM-27Fwd0Lc9rRjN7uGqDlgBK9qH083gdPU2cEYoLxJ5j1dUMZBBg/pub?output=csv&t=" + new Date().getTime())
   .then(res => res.text())
   .then(csv => {
     const rows = csv.trim().split("\n").slice(1);
@@ -102,6 +9,7 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
     let latestSteps = 0;
     let todayMax = 0;
     let dailyMax = {};
+    let monthlyTotal = 0; // ✅ FIXED (declare early)
 
     const today = new Date().toISOString().slice(0,10);
     const currentMonth = today.slice(0,7);
@@ -121,50 +29,43 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
       }
     });
 
-  // Convert steps to distance
-const KM_PER_STEP = 0.0008; // ~0.8m per step
-const distanceKm = monthlyTotal * KM_PER_STEP;
-const distanceMiles = distanceKm * 0.621371;
-const percentDistance = Math.min((distanceKm / 800) * 100, 100);
-
-// Fun comparison (London to Paris ~340km, goal ~800km / 500 miles)
-const percentDistance = Math.min((distanceKm / 800) * 100, 100);
+    // Calculate monthly total
     for (let date in dailyMax) {
       if (date.startsWith(currentMonth)) {
         monthlyTotal += dailyMax[date];
       }
     }
 
-   // Progress bar
-const percent = Math.min((monthlyTotal / GOAL) * 100, 100);
-document.getElementById("progress").style.width = percent + "%";
+    // Convert steps to distance
+    const KM_PER_STEP = 0.0008;
+    const distanceKm = monthlyTotal * KM_PER_STEP;
+    const distanceMiles = distanceKm * 0.621371;
+    const percentDistance = Math.min((distanceKm / 800) * 100, 100);
 
-// Format numbers nicely
-const format = num => num.toLocaleString();
+    // Progress bar
+    const percent = Math.min((monthlyTotal / GOAL) * 100, 100);
+    document.getElementById("progress").style.width = percent + "%";
 
-// Update text
-document.getElementById("latest").innerText =
-  "Live: " + format(latestSteps) + " steps";
+    // Format numbers
+    const format = num => num.toLocaleString();
 
-document.getElementById("today").innerText =
-  "Today: " + format(todayMax);
+    // Update text
+    document.getElementById("latest").innerText =
+      "Live: " + format(latestSteps) + " steps";
 
-document.getElementById("monthly").innerText =
-  "This month: " + format(monthlyTotal);
+    document.getElementById("today").innerText =
+      "Today: " + format(todayMax);
 
-document.getElementById("goalText").innerText =
-  Math.round(percent) + "% of " + format(GOAL) + " step goal";
+    document.getElementById("monthly").innerText =
+      "This month: " + format(monthlyTotal);
+
     document.getElementById("goalText").innerText =
-  Math.round(percent) + "% of " + format(GOAL) + " step goal";
+      Math.round(percent) + "% of " + format(GOAL) + " step goal";
 
-// NEW STUFF BELOW
-document.getElementById("distance").innerText =
-  "Distance: " + format(distanceKm.toFixed(1)) + " km (" + format(distanceMiles.toFixed(1)) + " miles)";
+    document.getElementById("distance").innerText =
+      "Distance: " + distanceKm.toFixed(1) + " km (" + distanceMiles.toFixed(1) + " miles)";
 
-document.getElementById("comparison").innerText =
-  "That’s like walking " + Math.round(percentDistance) + "% of the way to 500 miles 🚶";
+    document.getElementById("comparison").innerText =
+      "That’s like walking " + Math.round(percentDistance) + "% of the way to 500 miles 🚶";
   });
 </script>
-
-</body>
-</html>
