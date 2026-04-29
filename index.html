@@ -44,7 +44,10 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
 
     // Progress bar
     const percent = Math.min((monthlyTotal / GOAL) * 100, 100);
-    document.getElementById("progress").style.width = percent + "%";
+   const progressEl = document.getElementById("progress");
+if (progressEl) {
+  progressEl.style.width = percent + "%";
+}
 
     // Format numbers
     const format = num => num.toLocaleString();
