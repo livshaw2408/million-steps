@@ -2,51 +2,54 @@
 <html>
 
 <head>
-  <title>One Million Steps in May</title>
+  <title>One Million Steps in May 💖</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
   <style>
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #ffe6f0, #fdfbff);
       text-align: center;
-      padding: 30px;
+      padding: 20px;
     }
 
     .container {
-      max-width: 700px;
+      max-width: 720px;
       margin: auto;
       background: white;
       padding: 30px;
       border-radius: 24px;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.1);
     }
 
     h1 {
       font-size: 34px;
+      margin-bottom: 10px;
       background: linear-gradient(90deg, #ff4d88, #ff7eb3);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .hero {
-      font-size: 42px;
-      font-weight: bold;
+      font-size: 48px;
+      font-weight: 700;
       margin: 20px 0;
       color: #ff4d88;
     }
 
     .stat {
-      font-size: 16px;
-      margin: 6px 0;
-      color: #444;
+      font-size: 15px;
+      color: #555;
+      margin: 4px 0;
     }
 
     .progress-bar {
       width: 100%;
       background: #eee;
-      border-radius: 20px;
+      border-radius: 30px;
       overflow: hidden;
-      height: 20px;
+      height: 22px;
       margin: 20px 0;
     }
 
@@ -54,17 +57,22 @@
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, #ff7eb3, #ff4d88);
-      transition: width 1s ease-in-out;
+      transition: width 1.2s ease;
+    }
+
+    .goal {
+      font-weight: 500;
+      color: #444;
     }
 
     .donate {
       display: inline-block;
-      margin-top: 20px;
-      padding: 14px 28px;
+      margin-top: 15px;
+      padding: 14px 30px;
       background: linear-gradient(90deg, #ff4d88, #ff7eb3);
       color: white;
       text-decoration: none;
-      border-radius: 12px;
+      border-radius: 14px;
       font-weight: bold;
       font-size: 18px;
     }
@@ -73,34 +81,15 @@
       margin-top: 10px;
       padding: 12px 20px;
       border: none;
-      background: #eee;
-      border-radius: 10px;
+      background: #f2f2f2;
+      border-radius: 12px;
       cursor: pointer;
     }
 
+    /* DONATIONS */
     .donations {
       margin-top: 30px;
       text-align: left;
-      max-height: 220px;
-      overflow: hidden;
-    }
-
-    #donationList {
-      display: flex;
-      flex-direction: column;
-      animation: scrollUp 20s linear infinite;
-    }
-
-    .donation-card {
-      background: #fff0f6;
-      padding: 12px;
-      border-radius: 12px;
-      margin: 10px 0;
-    }
-
-    @keyframes scrollUp {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-50%); }
     }
 
     #fundraising {
@@ -109,10 +98,65 @@
       margin-bottom: 10px;
     }
 
-    .mind-section {
+    .donation-window {
+      max-height: 180px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    #donationList {
+      display: flex;
+      flex-direction: column;
+      animation: scrollUp 25s linear infinite;
+    }
+
+    .donation-card {
+      background: #fff0f6;
+      padding: 12px;
+      border-radius: 12px;
+      margin: 8px 0;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: fadeIn 0.6s forwards;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scrollUp {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+
+    /* fade edges */
+    .donation-window::before,
+    .donation-window::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 25px;
+      z-index: 2;
+    }
+
+    .donation-window::before {
+      top: 0;
+      background: linear-gradient(to bottom, white, transparent);
+    }
+
+    .donation-window::after {
+      bottom: 0;
+      background: linear-gradient(to top, white, transparent);
+    }
+
+    .mind {
       margin-top: 40px;
-      padding: 20px;
       background: #f0f7ff;
+      padding: 20px;
       border-radius: 16px;
       text-align: left;
     }
@@ -124,8 +168,7 @@
 <div class="container">
 
 <h1>👟 One Million Steps in May 💖</h1>
-
-<p>🚶‍♀️ Follow my progress | 💖 Support the cause | 📊 Daily updates</p>
+<p>Walking 1,000,000 steps for Mind 💙</p>
 
 <div class="hero" id="hero">Loading...</div>
 
@@ -137,7 +180,7 @@
   <div class="progress-fill" id="progress"></div>
 </div>
 
-<div class="stat" id="goalText"></div>
+<div class="goal" id="goalText"></div>
 
 <a class="donate" href="https://www.justgiving.com/page/liv-shaw-may-million" target="_blank">
   💖 Donate
@@ -145,21 +188,22 @@
 
 <br>
 
-<button class="share" onclick="sharePage()">📲 Share my progress</button>
+<button class="share" onclick="sharePage()">📲 Share</button>
 
 <div class="donations">
   <h3>💬 Recent Donations</h3>
   <div id="fundraising"></div>
-  <div id="donationList"></div>
+
+  <div class="donation-window">
+    <div id="donationList"></div>
+  </div>
 </div>
 
-<div class="mind-section">
+<div class="mind">
   <h3>💙 About Mind</h3>
   <p>
-    Mind is a UK charity that provides advice and support to empower anyone experiencing a mental health problem.
-  </p>
-  <p>
-    With NHS mental health waiting lists getting longer, their work is more important than ever 💙
+    Mind provides vital support for people experiencing mental health problems.
+    With NHS waiting lists growing, their work is more important than ever.
   </p>
 </div>
 
@@ -169,126 +213,96 @@
 const GOAL = 1000000;
 const FUNDRAISING_GOAL = 500;
 
-// STEP DATA
-fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMUOSM-27Fwd0Lc9rRjN7uGqDlgBK9qH083gdPU2cEYoLxJ5j1dUMZBBg/pub?output=csv&t=" + new Date().getTime())
+// STEPS
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMUOSM-27Fwd0Lc9rRjN7uGqDlgBK9qH083gdPU2cEYoLxJ5j1dUMZBBg/pub?output=csv&t=" + Date.now())
 .then(res => res.text())
 .then(csv => {
   const rows = csv.trim().split("\n").slice(1);
 
-  let dailyMax = {};
-  let monthlyTotal = 0;
+  let dailyMax = {}, total = 0;
+  const month = new Date().toISOString().slice(0,7);
 
-  const currentMonth = new Date().toISOString().slice(0,7);
-
-  rows.forEach(row => {
-    const cols = row.split(",");
-    if (cols.length < 3) return;
-
-    const date = cols[0];
-    const steps = parseInt(cols[2]);
-    if (isNaN(steps)) return;
-
-    if (!dailyMax[date] || steps > dailyMax[date]) {
-      dailyMax[date] = steps;
-    }
+  rows.forEach(r => {
+    const [date,,steps] = r.split(",");
+    const s = parseInt(steps);
+    if (!dailyMax[date] || s > dailyMax[date]) dailyMax[date] = s;
   });
 
-  for (let date in dailyMax) {
-    if (date.startsWith(currentMonth)) {
-      monthlyTotal += dailyMax[date];
-    }
-  }
+  for (let d in dailyMax) if (d.startsWith(month)) total += dailyMax[d];
 
-  const percent = Math.min((monthlyTotal / GOAL) * 100, 100);
+  const percent = Math.min((total/GOAL)*100,100);
 
-  // Count animation
-  let current = 0;
-  const increment = monthlyTotal / 50;
-
-  const counter = setInterval(() => {
-    current += increment;
-    if (current >= monthlyTotal) {
-      current = monthlyTotal;
-      clearInterval(counter);
-    }
-    document.getElementById("hero").innerText =
-      Math.floor(current).toLocaleString() + " steps 👟";
-  }, 20);
-
+  document.getElementById("progress").style.width = percent+"%";
   document.getElementById("goalText").innerText =
-    Math.round(percent) + "% of goal 🎯";
+    Math.round(percent)+"% of goal 🎯";
 
-  const progressEl = document.getElementById("progress");
-  if (progressEl) {
-    progressEl.style.width = percent + "%";
-  }
+  let c=0, inc=total/50;
+  const anim=setInterval(()=>{
+    c+=inc;
+    if(c>=total){c=total;clearInterval(anim);}
+    document.getElementById("hero").innerText =
+      Math.floor(c).toLocaleString()+" steps 👟";
+  },20);
 
-  const km = monthlyTotal * 0.0008;
-  const miles = km * 0.621371;
-  const marathons = monthlyTotal / 52000;
-
+  const miles = total*0.0008*0.621371;
   document.getElementById("distance").innerText =
-    miles.toFixed(1) + " miles walked 🗺️";
+    miles.toFixed(1)+" miles 🗺️";
 
   document.getElementById("marathons").innerText =
-    marathons.toFixed(2) + " marathons 🏃‍♀️";
+    (total/52000).toFixed(2)+" marathons 🏃‍♀️";
 
-  const now = new Date();
   document.getElementById("dayCounter").innerText =
-    "Day " + now.getDate() + " of May 📅";
+    "Day "+new Date().getDate()+" of May 📅";
 });
 
+// DONATIONS
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTdAX1ekTILPsQ_7QvAaRGaVJyWHS12UWkOXK8hRQQoQb_ItyjiYxwg7KfiV_-pp40x_8WLeqPQechz/pub?output=csv&t="+Date.now())
+.then(r=>r.text())
+.then(csv=>{
+  const rows=csv.trim().split("\n").slice(1);
+  const list=document.getElementById("donationList");
 
-// DONATIONS (SAFE VERSION — no weird syntax)
-fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTdAX1ekTILPsQ_7QvAaRGaVJyWHS12UWkOXK8hRQQoQb_ItyjiYxwg7KfiV_-pp40x_8WLeqPQechz/pub?output=csv&t=" + new Date().getTime())
-.then(res => res.text())
-.then(csv => {
-  const rows = csv.trim().split("\n").slice(1);
-  const container = document.getElementById("donationList");
-
-  let totalRaised = 0;
-
-  rows.forEach(row => {
-    const cols = row.split(",");
-    if (cols.length < 3) return;
-
-    const amount = parseFloat(cols[2].replace("£",""));
-    if (!isNaN(amount)) {
-      totalRaised += amount;
-    }
+  let total=0;
+  rows.forEach(r=>{
+    const cols=r.split(",");
+    const amt=parseFloat(cols[2]?.replace("£",""));
+    if(!isNaN(amt)) total+=amt;
   });
 
-  const percent = Math.min((totalRaised / FUNDRAISING_GOAL) * 100, 100);
+  const percent=Math.min((total/FUNDRAISING_GOAL)*100,100);
 
   document.getElementById("fundraising").innerText =
-    "£" + totalRaised.toFixed(0) +
-    " raised (" + Math.round(percent) + "% of £" + FUNDRAISING_GOAL + ") 💖";
+    "£"+total.toFixed(0)+" raised ("+Math.round(percent)+"%) 💖";
 
-  const latest = rows.slice(-5).reverse();
+  const latest=rows.slice(-5).reverse();
 
-  [...latest, ...latest].forEach(row => {
-    const cols = row.split(",");
-    if (cols.length < 3) return;
+  [...latest,...latest].forEach((r,i)=>{
+    const cols=r.split(",");
+    if(cols.length<3) return;
 
-    const name = cols[0].trim();
-    const message = cols[1].trim();
-    const amount = cols[2].replace("£","").trim();
-
-    const div = document.createElement("div");
-    div.className = "donation-card";
+    const div=document.createElement("div");
+    div.className="donation-card";
+    div.style.animationDelay=(i*0.2)+"s";
 
     div.innerHTML =
-      "<strong>" + name + "</strong> donated £" + amount + "<br>" + message;
+      "<strong>"+cols[0]+"</strong> donated £"+
+      cols[2].replace("£","")+"<br>"+cols[1];
 
-    container.appendChild(div);
+    list.appendChild(div);
   });
 });
 
-
 // SHARE
-function sharePage() {
-  navigator.clipboard.writeText(window.location.href);
-  alert("Link copied! Share it 💖");
+function sharePage(){
+  if(navigator.share){
+    navigator.share({
+      title:"One Million Steps in May",
+      url:window.location.href
+    });
+  } else {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copied 💖");
+  }
 }
 </script>
 
