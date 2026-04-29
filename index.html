@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>My Stepathon</title>
+  <title>One Million Steps in May</title>
   <meta http-equiv="refresh" content="60">
 </head>
 <body style="font-family: Arial; text-align: center; padding: 40px;">
 
-<h1>🚶 My Charity Stepathon</h1>
+<h1>🏃🏻‍♀️One Million Steps in May</h1>
 
 <h2 id="latest">Loading...</h2>
 <h3 id="monthly">Loading...</h3>
 
 <script>
-fetch("YOUR_CSV_LINK")
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMUOSM-27Fwd0Lc9rRjN7uGqDlgBK9qH083gdPU2cEYoLxJ5j1dUMZBBg/pubhtml")
   .then(res => res.text())
   .then(csv => {
     const rows = csv.trim().split("\n").slice(1);
