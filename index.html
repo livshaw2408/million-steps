@@ -1,3 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>One Million Steps in May!</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      text-align: center;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .stat {
+      font-size: 28px;
+      margin: 15px 0;
+    }
+
+    .progress-bar {
+      width: 100%;
+      background: #eee;
+      border-radius: 20px;
+      overflow: hidden;
+      height: 25px;
+      margin: 20px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #4facfe, #00f2fe);
+    }
+
+    .goal {
+      color: #666;
+    }
+
+    .donate {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 20px;
+      background: #28a745;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🏃🏻‍♀️ One Million Steps in May 🌟</h1>
+<p>
+  Walking 1,000,000 steps to raise money for Mind — a charity close to my heart.
+  With NHS mental health treatment waiting lists getting longer, the work Mind does is more important than ever.
+</p>
+
+<div class="stat" id="latest">Loading...</div>
+<div class="stat" id="today"></div>
+<div class="stat" id="monthly"></div>
+
+<div class="stat" id="distance"></div>
+<div class="goal" id="comparison"></div>
+
+<div class="progress-bar">
+  <div class="progress-fill" id="progress"></div>
+</div>
+
+<div class="goal" id="goalText"></div>
+
+<a class="donate" href="https://www.justgiving.com/page/liv-shaw-may-million" target="_blank">
+  Donate
+</a>
+
+</div>
+
 <script>
 const GOAL = 1000000;
 
@@ -9,50 +97,45 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
     let latestSteps = 0;
     let todayMax = 0;
     let dailyMax = {};
-    let monthlyTotal = 0; // ✅ FIXED (declare early)
+    let monthlyTotal = 0;
 
     const today = new Date().toISOString().slice(0,10);
     const currentMonth = today.slice(0,7);
 
     rows.forEach(row => {
-      const [date, time, steps] = row.split(",");
-      const stepNum = parseInt(steps);
+      const cols = row.split(",");
+      if (cols.length < 3) return;
 
-      latestSteps = stepNum;
+      const date = cols[0];
+      const steps = parseInt(cols[2]);
+      if (isNaN(steps)) return;
 
-      if (date === today && stepNum > todayMax) {
-        todayMax = stepNum;
+      latestSteps = steps;
+
+      if (date === today && steps > todayMax) {
+        todayMax = steps;
       }
 
-      if (!dailyMax[date] || stepNum > dailyMax[date]) {
-        dailyMax[date] = stepNum;
+      if (!dailyMax[date] || steps > dailyMax[date]) {
+        dailyMax[date] = steps;
       }
     });
 
-    // Calculate monthly total
     for (let date in dailyMax) {
       if (date.startsWith(currentMonth)) {
         monthlyTotal += dailyMax[date];
       }
-    }
+    });
 
-    // Convert steps to distance
     const KM_PER_STEP = 0.0008;
     const distanceKm = monthlyTotal * KM_PER_STEP;
     const distanceMiles = distanceKm * 0.621371;
     const percentDistance = Math.min((distanceKm / 800) * 100, 100);
 
-    // Progress bar
     const percent = Math.min((monthlyTotal / GOAL) * 100, 100);
-   const progressEl = document.getElementById("progress");
-if (progressEl) {
-  progressEl.style.width = percent + "%";
-}
 
-    // Format numbers
     const format = num => num.toLocaleString();
 
-    // Update text
     document.getElementById("latest").innerText =
       "Live: " + format(latestSteps) + " steps";
 
@@ -62,13 +145,21 @@ if (progressEl) {
     document.getElementById("monthly").innerText =
       "This month: " + format(monthlyTotal);
 
-    document.getElementById("goalText").innerText =
-      Math.round(percent) + "% of " + format(GOAL) + " step goal";
-
     document.getElementById("distance").innerText =
       "Distance: " + distanceKm.toFixed(1) + " km (" + distanceMiles.toFixed(1) + " miles)";
 
     document.getElementById("comparison").innerText =
       "That’s like walking " + Math.round(percentDistance) + "% of the way to 500 miles 🚶";
+
+    document.getElementById("goalText").innerText =
+      Math.round(percent) + "% of " + format(GOAL) + " step goal";
+
+    const progressEl = document.getElementById("progress");
+    if (progressEl) {
+      progressEl.style.width = percent + "%";
+    }
   });
 </script>
+
+</body>
+</html>
