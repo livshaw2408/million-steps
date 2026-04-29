@@ -106,8 +106,9 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
       const cols = row.split(",");
       if (cols.length < 3) return;
 
-      const date = cols[0];
+      const date = cols[0].trim();
       const steps = parseInt(cols[2]);
+
       if (isNaN(steps)) return;
 
       latestSteps = steps;
@@ -125,7 +126,7 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
       if (date.startsWith(currentMonth)) {
         monthlyTotal += dailyMax[date];
       }
-    });
+    }
 
     const KM_PER_STEP = 0.0008;
     const distanceKm = monthlyTotal * KM_PER_STEP;
@@ -158,6 +159,10 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
     if (progressEl) {
       progressEl.style.width = percent + "%";
     }
+  })
+  .catch(err => {
+    console.error(err);
+    document.getElementById("latest").innerText = "Error loading data";
   });
 </script>
 
