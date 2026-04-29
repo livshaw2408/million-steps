@@ -59,7 +59,7 @@
 
     .donate {
       display: inline-block;
-      margin-top: 25px;
+      margin-top: 20px;
       padding: 14px 28px;
       background: linear-gradient(90deg, #ff4d88, #ff7eb3);
       color: white;
@@ -69,9 +69,26 @@
       font-size: 18px;
     }
 
+    .share {
+      margin-top: 10px;
+      padding: 12px 20px;
+      border: none;
+      background: #eee;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
     .donations {
       margin-top: 30px;
       text-align: left;
+      max-height: 220px;
+      overflow: hidden;
+    }
+
+    #donationList {
+      display: flex;
+      flex-direction: column;
+      animation: scrollUp 20s linear infinite;
     }
 
     .donation-card {
@@ -79,16 +96,17 @@
       padding: 12px;
       border-radius: 12px;
       margin: 10px 0;
-      opacity: 0;
-      transform: translateY(10px);
-      animation: fadeIn 0.6s ease forwards;
     }
 
-    @keyframes fadeIn {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    @keyframes scrollUp {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(-50%); }
+    }
+
+    #fundraising {
+      font-weight: bold;
+      color: #ff4d88;
+      margin-bottom: 10px;
     }
 
     .mind-section {
@@ -97,10 +115,6 @@
       background: #f0f7ff;
       border-radius: 16px;
       text-align: left;
-    }
-
-    .mind-section h3 {
-      margin-top: 0;
     }
   </style>
 </head>
@@ -111,7 +125,7 @@
 
 <h1>👟 One Million Steps in May 💖</h1>
 
-<p>🚶‍♀️ Follow my progress | 💖 Support the cause | 📊 Daily updates</p>
+<p>🚶‍♀️ Follow my progress | 💖 Support the cause | 📊 Live updates</p>
 
 <div class="hero" id="hero">Loading...</div>
 
@@ -129,8 +143,13 @@
   💖 Donate
 </a>
 
+<br>
+
+<button class="share" onclick="sharePage()">📲 Share my progress</button>
+
 <div class="donations">
   <h3>💬 Recent Donations</h3>
+  <div id="fundraising"></div>
   <div id="donationList"></div>
 </div>
 
@@ -138,11 +157,9 @@
   <h3>💙 About Mind</h3>
   <p>
     Mind is a UK charity that provides advice and support to empower anyone experiencing a mental health problem.
-    They campaign to improve services, raise awareness, and promote understanding.
   </p>
   <p>
-    With NHS mental health waiting lists getting longer, charities like Mind are more important than ever.
-    Your support helps ensure people can access help when they need it most 💙
+    With NHS mental health waiting lists getting longer, their work is more important than ever 💙
   </p>
 </div>
 
@@ -150,6 +167,7 @@
 
 <script>
 const GOAL = 1000000;
+const FUNDRAISING_GOAL = 500;
 
 // STEP DATA
 fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMUOSM-27Fwd0Lc9rRjN7uGqDlgBK9qH083gdPU2cEYoLxJ5j1dUMZBBg/pub?output=csv&t=" + new Date().getTime())
@@ -179,11 +197,10 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
     if (date.startsWith(currentMonth)) {
       monthlyTotal += dailyMax[date];
     }
-  }
+  });
 
   const percent = Math.min((monthlyTotal / GOAL) * 100, 100);
 
-  // Animate number (count up effect)
   let current = 0;
   const increment = monthlyTotal / 50;
 
@@ -202,7 +219,6 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
 
   document.getElementById("progress").style.width = percent + "%";
 
-  // Distance + marathons
   const km = monthlyTotal * 0.0008;
   const miles = km * 0.621371;
   const marathons = monthlyTotal / 52000;
@@ -213,36 +229,63 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
   document.getElementById("marathons").innerText =
     marathons.toFixed(2) + " marathons 🏃‍♀️";
 
-  // Day counter
   const now = new Date();
   document.getElementById("dayCounter").innerText =
-    "Day " + now.getDate() + " May 📅";
+    "Day " + now.getDate() + " of May 📅";
 });
 
-// DONATIONS
-fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTdAX1ekTILPsQ_7QvAaRGaVJyWHS12UWkOXK8hRQQoQb_ItyjiYxwg7KfiV_-pp40x_8WLeqPQechz/pub?output=csv")
+// DONATIONS + FUNDRAISING
+fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTdAX1ekTILPsQ_7QvAaRGaVJyWHS12UWkOXK8hRQQoQb_ItyjiYxwg7KfiV_-pp40x_8WLeqPQechz/pub?output=csv&t=" + new Date().getTime())
 .then(res => res.text())
 .then(csv => {
   const rows = csv.trim().split("\n").slice(1);
   const container = document.getElementById("donationList");
 
-  rows.slice(-5).reverse().forEach((row, i) => {
+  let totalRaised = 0;
+
+  rows.forEach(row => {
     const cols = row.split(",");
     if (cols.length < 3) return;
 
-    const name = cols[0];
-    const message = cols[1];
-    const amount = cols[2];
+    const amount = parseFloat(cols[2].replace("£",""));
+    if (!isNaN(amount)) {
+      totalRaised += amount;
+    }
+  });
+
+  const percent = Math.min((totalRaised / FUNDRAISING_GOAL) * 100, 100);
+
+  document.getElementById("fundraising").innerText =
+    "£" + totalRaised.toFixed(0) +
+    " raised (" + Math.round(percent) + "% of £" + FUNDRAISING_GOAL + ") 💖";
+
+  const latest = rows.slice(-5).reverse();
+
+  [...latest, ...latest].forEach(row => {
+    const cols = row.split(",");
+    if (cols.length < 3) return;
+
+    const name = cols[0].trim();
+    const message = cols[1].trim();
+    const amount = cols[2].replace("£","").trim();
 
     const div = document.createElement("div");
     div.className = "donation-card";
-    div.style.animationDelay = (i * 0.2) + "s";
 
-    div.innerHTML = `<strong>${name}</strong> donated £${amount}<br>"${message}"`;
+    div.innerHTML = `
+      <strong>${name}</strong> donated £${amount}<br>
+      ${message}
+    `;
 
     container.appendChild(div);
   });
 });
+
+// SHARE
+function sharePage() {
+  navigator.clipboard.writeText(window.location.href);
+  alert("Link copied! Share it 💖");
+}
 </script>
 
 </body>
