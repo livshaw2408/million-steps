@@ -2,27 +2,47 @@
 <html>
 
 <head>
-  <title>One Million Steps in May!</title>
+  <title>One Million Steps in May</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #ffe6f0, #f5f7fa);
       text-align: center;
       padding: 40px;
     }
 
     .container {
-      max-width: 600px;
+      max-width: 650px;
       margin: auto;
       background: white;
       padding: 30px;
-      border-radius: 16px;
+      border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
 
+    h1 {
+      font-size: 30px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 15px;
+      color: #555;
+    }
+
     .stat {
-      font-size: 28px;
+      font-size: 18px;
+      margin: 8px 0;
+      font-weight: 500;
+    }
+
+    .highlight {
+      font-size: 24px;
+      font-weight: bold;
+      color: #ff4d88;
       margin: 15px 0;
     }
 
@@ -31,27 +51,37 @@
       background: #eee;
       border-radius: 20px;
       overflow: hidden;
-      height: 25px;
+      height: 20px;
       margin: 20px 0;
     }
 
     .progress-fill {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #4facfe, #00f2fe);
+      background: linear-gradient(90deg, #ff7eb3, #ff758c);
+      transition: width 0.5s ease;
     }
 
     .goal {
-      color: #666;
+      font-size: 14px;
+      color: #777;
     }
 
-.donate {
-  display: inline-block;
-  margin-top: 20px;
-  padding: 14px 24px;
-  background: #ff5a5f;
-  font-size: 18px;
-}
+    .donate {
+      display: inline-block;
+      margin-top: 25px;
+      padding: 14px 24px;
+      background: #ff5a8a;
+      color: white;
+      text-decoration: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 16px;
+    }
+
+    canvas {
+      margin-top: 30px;
+    }
   </style>
 </head>
 
@@ -59,28 +89,37 @@
 
 <div class="container">
 
-<h1>🏃🏻‍♀️ One Million Steps in May 🌟</h1>
+<h1>👟 One Million Steps in May 💖</h1>
+
+<p>🚶‍♀️ Follow my progress | 💖 Support the cause | 📊 Updated live</p>
+
 <p>
-  Walking 1,000,000 steps to raise money for Mind — a charity close to my heart.
-  With NHS mental health treatment waiting lists getting longer, the work Mind does is more important than ever.
+  I’m walking <strong>1,000,000 steps in May</strong> to raise money for Mind 💙<br><br>
+  With NHS mental health waiting lists getting longer, their work is more important than ever.
+  Every step counts — and every donation helps 💫
 </p>
 
-<div class="stat" id="latest">Loading...</div>
+<div class="stat" id="dayCounter"></div>
+<div class="stat" id="marathons"></div>
+
+<div class="highlight" id="latest">Loading...</div>
+
 <div class="stat" id="today"></div>
 <div class="stat" id="monthly"></div>
-
 <div class="stat" id="distance"></div>
-<div class="goal" id="comparison"></div>
 
 <div class="progress-bar">
   <div class="progress-fill" id="progress"></div>
 </div>
 
 <div class="goal" id="goalText"></div>
+<div class="goal" id="comparison"></div>
 
 <a class="donate" href="https://www.justgiving.com/page/liv-shaw-may-million" target="_blank">
-  Donate
+  💖 Donate
 </a>
+
+<canvas id="chart"></canvas>
 
 </div>
 
@@ -106,7 +145,6 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
 
       const date = cols[0].trim();
       const steps = parseInt(cols[2]);
-
       if (isNaN(steps)) return;
 
       latestSteps = steps;
@@ -129,14 +167,35 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
     const KM_PER_STEP = 0.0008;
     const distanceKm = monthlyTotal * KM_PER_STEP;
     const distanceMiles = distanceKm * 0.621371;
-    const percentDistance = Math.min((distanceKm / 800) * 100, 100);
+    const percentDistance = Math.min((distanceMiles / 500) * 100, 100);
 
     const percent = Math.min((monthlyTotal / GOAL) * 100, 100);
 
     const format = num => num.toLocaleString();
 
+    // 📅 Day counter
+    const now = new Date();
+    const dayOfMonth = now.getDate();
+
+    let dayText = "";
+    if (now.getMonth() === 4) {
+      dayText = "Day " + dayOfMonth + " of May 📅";
+    } else {
+      dayText = "Challenge starts in May 👟";
+    }
+
+    document.getElementById("dayCounter").innerText = dayText;
+
+    // 🏃‍♀️ Marathons
+    const STEPS_PER_MARATHON = 52000;
+    const marathons = monthlyTotal / STEPS_PER_MARATHON;
+
+    document.getElementById("marathons").innerText =
+      "That’s about " + marathons.toFixed(2) + " marathons 🏃‍♀️";
+
+    // Stats
     document.getElementById("latest").innerText =
-      "Live: " + format(latestSteps) + " steps";
+      format(latestSteps) + " steps";
 
     document.getElementById("today").innerText =
       "Today: " + format(todayMax);
@@ -147,16 +206,44 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
     document.getElementById("distance").innerText =
       "Distance: " + distanceKm.toFixed(1) + " km (" + distanceMiles.toFixed(1) + " miles)";
 
-    document.getElementById("comparison").innerText =
-      "That’s like walking " + Math.round(percentDistance) + "% of the way to 500 miles 🚶";
-
     document.getElementById("goalText").innerText =
-      Math.round(percent) + "% of " + format(GOAL) + " step goal";
+      format(monthlyTotal) + " / " + format(GOAL) + " steps (" + Math.round(percent) + "%)";
+
+    document.getElementById("comparison").innerText =
+      Math.round(distanceMiles) + " miles walked — " +
+      Math.round(percentDistance) + "% of the way to 500 miles 🎯";
 
     const progressEl = document.getElementById("progress");
     if (progressEl) {
       progressEl.style.width = percent + "%";
     }
+
+    // 📊 Chart
+    const labels = [];
+    const data = [];
+
+    for (let date in dailyMax) {
+      if (date.startsWith(currentMonth)) {
+        labels.push(date.slice(5));
+        data.push(dailyMax[date]);
+      }
+    }
+
+    new Chart(document.getElementById("chart"), {
+      type: 'line',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Daily Steps',
+          data: data,
+          tension: 0.3
+        }]
+      },
+      options: {
+        plugins: { legend: { display: false } }
+      }
+    });
+
   })
   .catch(err => {
     console.error(err);
