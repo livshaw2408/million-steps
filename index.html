@@ -3,6 +3,7 @@
 
 <head>
   <title>One Million Steps in May 💖</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
@@ -11,35 +12,36 @@
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #ffe6f0, #fdfbff);
       text-align: center;
-      padding: 20px;
+      padding: 15px;
     }
 
     .container {
       max-width: 720px;
       margin: auto;
       background: white;
-      padding: 30px;
+      padding: 25px;
       border-radius: 24px;
       box-shadow: 0 20px 50px rgba(0,0,0,0.1);
     }
 
     h1 {
-      font-size: 34px;
+      font-size: 30px;
       background: linear-gradient(90deg, #ff4d88, #ff7eb3);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
     .hero {
-      font-size: 48px;
+      font-size: 44px;
       font-weight: 700;
       color: #ff4d88;
       margin: 20px 0;
     }
 
     .stat {
-      font-size: 14px;
-      color: #555;
+      font-size: 15px;
+      color: #222;
+      margin: 4px 0;
     }
 
     .progress-bar {
@@ -54,7 +56,7 @@
       height: 100%;
       width: 0%;
       background: linear-gradient(90deg, #ff7eb3, #ff4d88);
-      transition: width 1s ease;
+      transition: width 1.5s ease;
     }
 
     .donate {
@@ -78,27 +80,22 @@
     }
 
     #fundraisingAmount {
-      font-size: 28px;
+      font-size: 30px;
       font-weight: bold;
       color: #ff4d88;
+      margin-top: 10px;
     }
 
     #fundraisingText {
       font-size: 14px;
-      color: #666;
+      color: #444;
     }
 
     .donation-window {
       max-height: 180px;
       overflow: hidden;
-      position: relative;
       margin-top: 10px;
-    }
-
-    #donationList {
-      display: flex;
-      flex-direction: column;
-      animation: scrollUp 25s linear infinite;
+      border-radius: 12px;
     }
 
     .donation-card {
@@ -108,17 +105,17 @@
       margin: 6px 0;
     }
 
-    @keyframes scrollUp {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-50%); }
-    }
-
     .mind {
       margin-top: 30px;
       background: #f0f7ff;
       padding: 20px;
       border-radius: 16px;
       text-align: left;
+    }
+
+    .mind p {
+      margin-bottom: 10px;
+      line-height: 1.5;
     }
   </style>
 </head>
@@ -141,7 +138,9 @@
 
 <div id="goalText"></div>
 
-<a class="donate" href="https://www.justgiving.com/page/liv-shaw-may-million" target="_blank">💖 Donate</a>
+<a class="donate" href="https://www.justgiving.com/page/liv-shaw-may-million" target="_blank">
+  💖 Donate
+</a>
 <br>
 <button class="share" onclick="sharePage()">📲 Share</button>
 
@@ -150,13 +149,21 @@
 <div id="fundraisingAmount">£0</div>
 <div id="fundraisingText"></div>
 
-<div class="donation-window">
+<div class="donation-window" id="donationWindow">
   <div id="donationList"></div>
 </div>
 
 <div class="mind">
   <h3>💙 About Mind</h3>
-  <p>Mind supports people with mental health problems across the UK. Your support makes a real difference 💙</p>
+  <p>
+    Mind is a charity close to my heart, providing vital support for people experiencing mental health problems across the UK.
+  </p>
+  <p>
+    With NHS mental health treatment waiting lists getting longer, the work Mind does is more important than ever — offering advice, support, and services when people need it most.
+  </p>
+  <p>
+    Every step I take this month is to help support that work 💙
+  </p>
 </div>
 
 </div>
@@ -165,7 +172,7 @@
 const GOAL = 1000000;
 const FUNDRAISING_GOAL = 500;
 
-// STEP DATA
+// STEPS
 fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMUOSM-27Fwd0Lc9rRjN7uGqDlgBK9qH083gdPU2cEYoLxJ5j1dUMZBBg/pub?output=csv&t=" + Date.now())
 .then(r => r.text())
 .then(csv => {
@@ -198,10 +205,10 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
     total.toLocaleString() + " steps 👟";
 
   document.getElementById("distance").innerText =
-    (total * 0.0008 * 0.621371).toFixed(1) + " miles";
+    (total * 0.0008 * 0.621371).toFixed(1) + " miles 🗺️";
 
   document.getElementById("marathons").innerText =
-    (total / 52000).toFixed(2) + " marathons";
+    (total / 52000).toFixed(2) + " marathons 🏃‍♀️";
 
   document.getElementById("dayCounter").innerText =
     "Day " + new Date().getDate() + " May 📅";
@@ -220,25 +227,21 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTdAX1ekTILPsQ_7QvAaRGaVJ
     const cols = r.split(",");
     const rawAmount = cols[cols.length - 1];
     const amount = parseFloat(rawAmount.replace("£",""));
-
     if (!isNaN(amount)) total += amount;
   });
 
-  // ticker animation
+  // ticker
   let current = 0;
   const increment = total / 60;
 
   const ticker = setInterval(() => {
     current += increment;
-
     if (current >= total) {
       current = total;
       clearInterval(ticker);
     }
-
     document.getElementById("fundraisingAmount").innerText =
       "£" + Math.floor(current).toLocaleString();
-
   }, 20);
 
   document.getElementById("fundraisingText").innerText =
@@ -249,7 +252,6 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTdAX1ekTILPsQ_7QvAaRGaVJ
 
   [...latest, ...latest].forEach(r => {
     const cols = r.split(",");
-
     const name = cols[0];
     const amount = cols[cols.length - 1];
     const message = cols.slice(1, cols.length - 1).join(",");
@@ -263,12 +265,38 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTdAX1ekTILPsQ_7QvAaRGaVJ
 
     list.appendChild(div);
   });
+
+  // MOBILE SCROLL
+  const container = document.getElementById("donationWindow");
+  let scroll = 0;
+  let active = true;
+
+  container.addEventListener("touchstart", () => active = false);
+  container.addEventListener("touchend", () => active = true);
+
+  setInterval(() => {
+    if (!active) return;
+
+    scroll += 0.5;
+    container.scrollTop = scroll;
+
+    if (scroll >= container.scrollHeight / 2) {
+      scroll = 0;
+    }
+  }, 30);
 });
 
 // SHARE
 function sharePage() {
-  navigator.clipboard.writeText(window.location.href);
-  alert("Link copied 💖");
+  if (navigator.share) {
+    navigator.share({
+      title: "One Million Steps in May",
+      url: window.location.href
+    });
+  } else {
+    navigator.clipboard.writeText(window.location.href);
+    alert("Link copied 💖");
+  }
 }
 </script>
 
