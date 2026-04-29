@@ -125,7 +125,7 @@
 
 <h1>👟 One Million Steps in May 💖</h1>
 
-<p>🚶‍♀️ Follow my progress | 💖 Support the cause | 📊 Live updates</p>
+<p>🚶‍♀️ Follow my progress | 💖 Support the cause | 📊 Daily updates</p>
 
 <div class="hero" id="hero">Loading...</div>
 
@@ -181,7 +181,7 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
   const currentMonth = new Date().toISOString().slice(0,7);
 
   rows.forEach(row => {
-const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+    const cols = row.split(",");
     if (cols.length < 3) return;
 
     const date = cols[0];
@@ -197,10 +197,11 @@ const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
     if (date.startsWith(currentMonth)) {
       monthlyTotal += dailyMax[date];
     }
-  });
+  }
 
   const percent = Math.min((monthlyTotal / GOAL) * 100, 100);
 
+  // Count animation
   let current = 0;
   const increment = monthlyTotal / 50;
 
@@ -217,7 +218,10 @@ const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
   document.getElementById("goalText").innerText =
     Math.round(percent) + "% of goal 🎯";
 
-  document.getElementById("progress").style.width = percent + "%";
+  const progressEl = document.getElementById("progress");
+  if (progressEl) {
+    progressEl.style.width = percent + "%";
+  }
 
   const km = monthlyTotal * 0.0008;
   const miles = km * 0.621371;
@@ -234,56 +238,52 @@ const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
     "Day " + now.getDate() + " of May 📅";
 });
 
-// DONATIONS + FUNDRAISING
+
+// DONATIONS (SAFE VERSION — no weird syntax)
 fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTdAX1ekTILPsQ_7QvAaRGaVJyWHS12UWkOXK8hRQQoQb_ItyjiYxwg7KfiV_-pp40x_8WLeqPQechz/pub?output=csv&t=" + new Date().getTime())
 .then(res => res.text())
 .then(csv => {
-  try {
+  const rows = csv.trim().split("\n").slice(1);
+  const container = document.getElementById("donationList");
 
-    const rows = csv.trim().split("\n").slice(1);
-    const container = document.getElementById("donationList");
+  let totalRaised = 0;
 
-    let totalRaised = 0;
+  rows.forEach(row => {
+    const cols = row.split(",");
+    if (cols.length < 3) return;
 
-    rows.forEach(row => {
-      const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-      if (!cols || cols.length < 3) return;
+    const amount = parseFloat(cols[2].replace("£",""));
+    if (!isNaN(amount)) {
+      totalRaised += amount;
+    }
+  });
 
-      const amount = parseFloat(cols[2].replace("£",""));
-      if (!isNaN(amount)) totalRaised += amount;
-    });
+  const percent = Math.min((totalRaised / FUNDRAISING_GOAL) * 100, 100);
 
-    const percent = Math.min((totalRaised / 500) * 100, 100);
+  document.getElementById("fundraising").innerText =
+    "£" + totalRaised.toFixed(0) +
+    " raised (" + Math.round(percent) + "% of £" + FUNDRAISING_GOAL + ") 💖";
 
-    document.getElementById("fundraising").innerText =
-      "£" + totalRaised.toFixed(0) +
-      " raised (" + Math.round(percent) + "% of £500) 💖";
+  const latest = rows.slice(-5).reverse();
 
-    const latest = rows.slice(-5).reverse();
+  [...latest, ...latest].forEach(row => {
+    const cols = row.split(",");
+    if (cols.length < 3) return;
 
-    [...latest, ...latest].forEach(row => {
-      const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
-      if (!cols || cols.length < 3) return;
+    const name = cols[0].trim();
+    const message = cols[1].trim();
+    const amount = cols[2].replace("£","").trim();
 
-      const name = cols[0].replace(/"/g,"").trim();
-      const message = cols[1].replace(/"/g,"").trim();
-      const amount = cols[2].replace("£","").trim();
+    const div = document.createElement("div");
+    div.className = "donation-card";
 
-      const div = document.createElement("div");
-      div.className = "donation-card";
+    div.innerHTML =
+      "<strong>" + name + "</strong> donated £" + amount + "<br>" + message;
 
-      div.innerHTML = `
-        <strong>${name}</strong> donated £${amount}<br>
-        ${message}
-      `;
-
-      container.appendChild(div);
-    });
-
-  } catch (e) {
-    console.error("Donations error:", e);
-  }
+    container.appendChild(div);
+  });
 });
+
 
 // SHARE
 function sharePage() {
