@@ -181,7 +181,7 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
   const currentMonth = new Date().toISOString().slice(0,7);
 
   rows.forEach(row => {
-    const cols = row.split(",");
+const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
     if (cols.length < 3) return;
 
     const date = cols[0];
@@ -238,47 +238,51 @@ fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vSU4ndbvchsHmYzYJx0LUmOMU
 fetch("https://docs.google.com/spreadsheets/d/e/2PACX-1vTdAX1ekTILPsQ_7QvAaRGaVJyWHS12UWkOXK8hRQQoQb_ItyjiYxwg7KfiV_-pp40x_8WLeqPQechz/pub?output=csv&t=" + new Date().getTime())
 .then(res => res.text())
 .then(csv => {
-  const rows = csv.trim().split("\n").slice(1);
-  const container = document.getElementById("donationList");
+  try {
 
-  let totalRaised = 0;
+    const rows = csv.trim().split("\n").slice(1);
+    const container = document.getElementById("donationList");
 
-  rows.forEach(row => {
-    const cols = row.split(",");
-    if (cols.length < 3) return;
+    let totalRaised = 0;
 
-    const amount = parseFloat(cols[2].replace("£",""));
-    if (!isNaN(amount)) {
-      totalRaised += amount;
-    }
-  });
+    rows.forEach(row => {
+      const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+      if (!cols || cols.length < 3) return;
 
-  const percent = Math.min((totalRaised / FUNDRAISING_GOAL) * 100, 100);
+      const amount = parseFloat(cols[2].replace("£",""));
+      if (!isNaN(amount)) totalRaised += amount;
+    });
 
-  document.getElementById("fundraising").innerText =
-    "£" + totalRaised.toFixed(0) +
-    " raised (" + Math.round(percent) + "% of £" + FUNDRAISING_GOAL + ") 💖";
+    const percent = Math.min((totalRaised / 500) * 100, 100);
 
-  const latest = rows.slice(-5).reverse();
+    document.getElementById("fundraising").innerText =
+      "£" + totalRaised.toFixed(0) +
+      " raised (" + Math.round(percent) + "% of £500) 💖";
 
-  [...latest, ...latest].forEach(row => {
-    const cols = row.split(",");
-    if (cols.length < 3) return;
+    const latest = rows.slice(-5).reverse();
 
-    const name = cols[0].trim();
-    const message = cols[1].trim();
-    const amount = cols[2].replace("£","").trim();
+    [...latest, ...latest].forEach(row => {
+      const cols = row.match(/(".*?"|[^",]+)(?=\s*,|\s*$)/g);
+      if (!cols || cols.length < 3) return;
 
-    const div = document.createElement("div");
-    div.className = "donation-card";
+      const name = cols[0].replace(/"/g,"").trim();
+      const message = cols[1].replace(/"/g,"").trim();
+      const amount = cols[2].replace("£","").trim();
 
-    div.innerHTML = `
-      <strong>${name}</strong> donated £${amount}<br>
-      ${message}
-    `;
+      const div = document.createElement("div");
+      div.className = "donation-card";
 
-    container.appendChild(div);
-  });
+      div.innerHTML = `
+        <strong>${name}</strong> donated £${amount}<br>
+        ${message}
+      `;
+
+      container.appendChild(div);
+    });
+
+  } catch (e) {
+    console.error("Donations error:", e);
+  }
 });
 
 // SHARE
